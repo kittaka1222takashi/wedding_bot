@@ -1,4 +1,8 @@
+import os
+import sys
 from flask import Flask, request, abort
+sys.path.append('/Users/kikuchitakashi/Docker/wedding_bot')
+
 
 from linebot import (
     LineBotApi, WebhookHandler
