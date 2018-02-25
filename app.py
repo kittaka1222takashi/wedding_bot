@@ -83,7 +83,7 @@ def handle_message(event):
 @handler.add(MessageEvent, message=(ImageMessage, VideoMessage, AudioMessage))
 def handle_content_message(event):
     if isinstance(event.message, ImageMessage):
-        ext = 'jpg'
+        ext = 'png'
     elif isinstance(event.message, VideoMessage):
         ext = 'mp4'
     elif isinstance(event.message, AudioMessage):
