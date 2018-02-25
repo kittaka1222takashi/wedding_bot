@@ -1,6 +1,7 @@
 import os
 import sys
 import util
+import tempfile
 from flask import Flask, request, abort
 sys.path.append('/Users/kikuchitakashi/Docker/wedding_bot')
 from linebot import (
@@ -69,10 +70,10 @@ def handle_message(event):
 @handler.add(MessageEvent, message=(ImageMessage, VideoMessage, AudioMessage))
 def handle_content_message(event):
     message_content = line_bot_api.get_message_content(event.message.id)
-    with open(file_path, 'wb') as fd:
-    # with tempfile.NamedTemporaryFile(dir=static_tmp_path, prefix=ext + '-', delete=False) as tf:
+    with tempfile.NamedTemporaryFile(dir=static_tmp_path, prefix=ext + '-', delete=False) as tf:
         for chunk in message_content.iter_content():
             tf.write(chunk)
+    # with tempfile.NamedTemporaryFile(dir=static_tmp_path, prefix=ext + '-', delete=False) as tf:
         tempfile_path = tf.name
     dist_path = tempfile_path + '.png'
     dist_name = os.path.basename(dist_path)
