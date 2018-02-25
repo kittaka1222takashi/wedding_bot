@@ -69,7 +69,8 @@ def handle_message(event):
 @handler.add(MessageEvent, message=(ImageMessage, VideoMessage, AudioMessage))
 def handle_content_message(event):
     message_content = line_bot_api.get_message_content(event.message.id)
-    with tempfile.NamedTemporaryFile(dir=static_tmp_path, prefix=ext + '-', delete=False) as tf:
+    with open(file_path, 'wb') as fd:
+    # with tempfile.NamedTemporaryFile(dir=static_tmp_path, prefix=ext + '-', delete=False) as tf:
         for chunk in message_content.iter_content():
             tf.write(chunk)
         tempfile_path = tf.name
