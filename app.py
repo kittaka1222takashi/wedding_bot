@@ -11,7 +11,16 @@ from linebot.exceptions import (
 )
 from linebot.models import (
     MessageEvent, TextMessage, TextSendMessage,
+    SourceUser, SourceGroup, SourceRoom,
+    TemplateSendMessage, ConfirmTemplate, MessageTemplateAction,
+    ButtonsTemplate, ImageCarouselTemplate, ImageCarouselColumn, URITemplateAction,
+    PostbackTemplateAction, DatetimePickerTemplateAction,
+    CarouselTemplate, CarouselColumn, PostbackEvent,
+    StickerMessage, StickerSendMessage, LocationMessage, LocationSendMessage,
+    ImageMessage, VideoMessage, AudioMessage, FileMessage,
+    UnfollowEvent, FollowEvent, JoinEvent, LeaveEvent, BeaconEvent
 )
+
 app = Flask(__name__)
 # 環境変数からchannel_secret・channel_access_tokenを取得
 channel_secret = os.environ['LINE_CHANNEL_SECRET']
