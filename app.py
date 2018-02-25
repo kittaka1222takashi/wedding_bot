@@ -1,7 +1,9 @@
+import errorno
 import os
 import sys
 import util
 import tempfile
+from argparse import ArgumentParser
 from flask import Flask, request, abort
 sys.path.append('/Users/kikuchitakashi/Docker/wedding_bot')
 from linebot import (
@@ -106,4 +108,5 @@ def handle_content_message(event):
 
 
 if __name__ == "__main__":
+    make_static_tmp_dir()
     app.run()
