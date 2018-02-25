@@ -3,7 +3,6 @@ import sys
 import util
 from flask import Flask, request, abort
 sys.path.append('/Users/kikuchitakashi/Docker/wedding_bot')
-
 from linebot import (
     LineBotApi, WebhookHandler
 )
@@ -13,7 +12,6 @@ from linebot.exceptions import (
 from linebot.models import (
     MessageEvent, TextMessage, TextSendMessage,
 )
-
 app = Flask(__name__)
 # 環境変数からchannel_secret・channel_access_tokenを取得
 channel_secret = os.environ['LINE_CHANNEL_SECRET']
@@ -58,6 +56,25 @@ def handle_message(event):
         # TextSendMessage(text=event.message.text)
         TextSendMessage(text=util.get_message(event.message.text))
     )
+
+
+@handler.add(MessageEvent, message=FileMessage)
+def handle_file_message(event):
+    message_content = line_bot_api.get_message_content(event.message.id)
+    with tempfile.NamedTemporaryFile(dir=static_tmp_path, prefix='file-', delete=False) as tf:
+        for chunk in message_content.iter_content():
+            tf.write(chunk)
+        tempfile_path = tf.name
+
+    dist_path = tempfile_path + '-' + event.message.file_name
+    dist_name = os.path.basename(dist_path)
+    os.rename(tempfile_path, dist_path)
+
+    line_bot_api.reply_message(
+        event.reply_token, [
+            TextSendMessage(text='Save file.'),
+            TextSendMessage(text=request.host_url + os.path.join('static', 'tmp', dist_name))
+        ])
 
 
 if __name__ == "__main__":
