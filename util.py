@@ -1,7 +1,7 @@
 import os,requests,re,sys,json,types
 
 def get_message(text):
-    api_key = os.environ('DOCOMO_DIALOGUE_API_KEY')
+    api_key = os.environ['DOCOMO_DIALOGUE_API_KEY']
     endpoint = 'https://api.apigw.smt.docomo.ne.jp/dialogue/v1/dialogue?APIKEY=REGISTER_KEY'
     url = endpoint.replace('REGISTER_KEY', api_key)
     #会話の入力
