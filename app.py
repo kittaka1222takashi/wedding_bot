@@ -1,8 +1,8 @@
 import os
 import sys
+import util
 from flask import Flask, request, abort
 sys.path.append('/Users/kikuchitakashi/Docker/wedding_bot')
-
 
 from linebot import (
     LineBotApi, WebhookHandler
@@ -55,7 +55,9 @@ def callback():
 def handle_message(event):
     line_bot_api.reply_message(
         event.reply_token,
-        TextSendMessage(text=event.message.text))
+        # TextSendMessage(text=event.message.text)
+        TextSendMessage(text=util.get_message(event.message.text))
+    )
 
 
 if __name__ == "__main__":
