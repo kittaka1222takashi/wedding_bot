@@ -1,4 +1,4 @@
-import errorno
+import errno
 import os
 import sys
 import util
