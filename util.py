@@ -1,8 +1,4 @@
-import os
-import sys
-import util
-from urllib.request import urlopen
-import re,sys,json,calendar
+import os,requests,re,sys,json,types
 
 def get_messatge(text):
     api_key = os.environ('DOCOMO_DIALOGUE_API_KEY')
