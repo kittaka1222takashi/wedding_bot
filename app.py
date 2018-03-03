@@ -116,7 +116,8 @@ def handle_content_message(event):
     line_bot_api.reply_message(
         event.reply_token, [
             # TextSendMessage(text='Save content.'),
-            TextSendMessage(text=request.host_url + os.path.join('static', 'tmp', dist_name))
+            TextSendMessage(text=request.host_url + os.path.join('static', 'tmp', dist_name)),
+            ImageSendMessage(original_content_url=request.host_url + os.path.join('static', 'tmp', dist_name))
         ])
 
 if __name__ == "__main__":
