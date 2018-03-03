@@ -119,8 +119,8 @@ def handle_content_message(event):
         event.reply_token, [
             # TextSendMessage(text='Save content.'),
             # TextSendMessage(text=request.host_url + os.path.join('static', 'tmp', dist_name))
-            TextSendMessage(text=img_url),
-            VideoSendMessage(original_centent_url=img_url)
+            TextSendMessage(text=img_url)
+            # VideoSendMessage(original_centent_url=img_url)
         ])
 
 if __name__ == "__main__":
