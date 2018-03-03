@@ -90,8 +90,11 @@ def handle_message(event):
 
 @handler.add(MessageEvent, message=(ImageMessage, VideoMessage, AudioMessage))
 def handle_content_message(event):
+    if not os.path.exists(static_tmp_path):
+        make_static_tmp_dir()
+        
     if isinstance(event.message, ImageMessage):
-        ext = 'png'
+        ext = 'jpg'
     elif isinstance(event.message, VideoMessage):
         ext = 'mp4'
     elif isinstance(event.message, AudioMessage):
@@ -99,22 +102,16 @@ def handle_content_message(event):
     else:
         return
 
-    print(static_tmp_path)
-    print(os.path.exists(static_tmp_path))
     message_content = line_bot_api.get_message_content(event.message.id)
     # with tempfile.NamedTemporaryFile(dir=static_tmp_path, prefix=ext + '-', delete=False) as tf:
     # with tempfile.NamedTemporaryFile(delete=False) as tf:
     with tempfile.NamedTemporaryFile(dir=static_tmp_path, delete=False) as tf:
-        print(message_content.iter_content())
         for chunk in message_content.iter_content():
             tf.write(chunk)
         tempfile_path = tf.name
-        print(tempfile_path)
 
     dist_path = tempfile_path + '.' + ext
-    print(dist_path)
     dist_name = os.path.basename(dist_path)
-    print(dist_name)
     os.rename(tempfile_path, dist_path)
 
     line_bot_api.reply_message(
