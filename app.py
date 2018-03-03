@@ -112,13 +112,15 @@ def handle_content_message(event):
 
     dist_path = tempfile_path + '.' + ext
     dist_name = os.path.basename(dist_path)
-    os.rename(tempfile_path, dist_path)
+    img_url=request.host_url + os.path.join('static', 'tmp', dist_name)s.rename(tempfile_path, dist_path)
+
 
     line_bot_api.reply_message(
         event.reply_token, [
             # TextSendMessage(text='Save content.'),
             # TextSendMessage(text=request.host_url + os.path.join('static', 'tmp', dist_name))
-            TextSendMessage(text=request.host_url + os.path.join('static', 'tmp', dist_name))
+            TextSendMessage(text=img_url),
+            VideoSendMessage(original_centent_url=img_url)
         ])
 
 if __name__ == "__main__":
