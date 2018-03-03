@@ -100,6 +100,7 @@ def handle_content_message(event):
         return
 
     print(static_tmp_path)
+    print(os.path.exists(static_tmp_path))
     message_content = line_bot_api.get_message_content(event.message.id)
     # with tempfile.NamedTemporaryFile(dir=static_tmp_path, prefix=ext + '-', delete=False) as tf:
     # with tempfile.NamedTemporaryFile(delete=False) as tf:
@@ -122,7 +123,6 @@ def handle_content_message(event):
             # TextSendMessage(text=request.host_url + os.path.join('static', 'tmp', dist_name))
             TextSendMessage(text=request.host_url + os.path.join('static', 'tmp', dist_name))
         ])
-
 
 if __name__ == "__main__":
     arg_parser = ArgumentParser(
