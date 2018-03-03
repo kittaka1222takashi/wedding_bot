@@ -101,14 +101,17 @@ def handle_content_message(event):
 
     message_content = line_bot_api.get_message_content(event.message.id)
     # with tempfile.NamedTemporaryFile(dir=static_tmp_path, prefix=ext + '-', delete=False) as tf:
-    # with tempfile.NamedTemporaryFile(delete=False) as tf:
-    with tempfile.NamedTemporaryFile(dir=static_tmp_path, delete=False) as tf:
+    with tempfile.NamedTemporaryFile(delete=False) as tf:
+    # with tempfile.NamedTemporaryFile(dir=static_tmp_path, delete=False) as tf:
         for chunk in message_content.iter_content():
             tf.write(chunk)
         tempfile_path = tf.name
+        print(tempfile_path)
 
     dist_path = tempfile_path + '.' + ext
+    print(dist_path)
     dist_name = os.path.basename(dist_path)
+    print(dist_name)
     os.rename(tempfile_path, dist_path)
 
     line_bot_api.reply_message(
