@@ -118,8 +118,8 @@ def handle_content_message(event):
             # TextSendMessage(text='Save content.'),
             TextSendMessage(text=request.host_url + os.path.join('static', 'tmp', dist_name)),
             ImageSendMessage(
-                original_content_url=request.host_url + os.path.join('static', 'tmp', dist_name)),
-                preview_image_url=request.host_url + os.path.join('static', 'tmp', dist_name))
+                original_content_url=request.host_url + os.path.join('static', 'tmp', dist_name),
+                preview_image_url=request.host_url + os.path.join('static', 'tmp', dist_name)
             )
         ])
 
