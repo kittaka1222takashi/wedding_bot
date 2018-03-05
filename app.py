@@ -92,7 +92,6 @@ def handle_message(event):
             TextSendMessage(text=util.get_message(event.message.text))
         )
 
-
 @handler.add(MessageEvent, message=(ImageMessage, VideoMessage, AudioMessage))
 def handle_content_message(event):
     if not os.path.exists(static_tmp_path):
@@ -109,13 +108,11 @@ def handle_content_message(event):
 
     message_content = line_bot_api.get_message_content(event.message.id)
     with tempfile.NamedTemporaryFile(dir=static_tmp_path, prefix=ext + '-', delete=False) as tf:
-    # with tempfile.NamedTemporaryFile(delete=False) as tf:
-    # with tempfile.NamedTemporaryFile(dir=static_tmp_path, delete=False) as tf:
         for chunk in message_content.iter_content():
             tf.write(chunk)
         tempfile_path = tf.name
-        # send files to dropbox
 
+    # send files to dropbox
     dist_path = tempfile_path + '.' + ext
     dist_name = os.path.basename(dist_path)
 
