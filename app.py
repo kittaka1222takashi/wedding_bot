@@ -1,10 +1,6 @@
 from __future__ import unicode_literals
-import errno
-import os
+import errno,os,sys,util,tempfile
 from os.path import join, dirname
-import sys
-import util
-import tempfile
 from argparse import ArgumentParser
 from flask import Flask, request, abort
 from dotenv import load_dotenv
@@ -33,10 +29,9 @@ from linebot.models import (
 
 app = Flask(__name__)
 # 環境変数からchannel_secret・channel_access_tokenを取得
-# channel_secret = os.environ['LINE_CHANNEL_SECRET']
-channel_secret = os.getenv('LINE_CHANNEL_SECRET')
-# channel_access_token = os.environ['LINE_CHANNEL_ACCESS_TOKEN']
-channel_access_token = os.getenv('LINE_CHANNEL_ACCESS_TOKEN')
+channel_secret = os.getenv('LINE_CHANNEL_SECRET', None)
+channel_access_token = os.getenv('LINE_CHANNEL_ACCESS_TOKEN', None)
+dropbox_api_token = os.getenv('DROPBOX_API_TOKEN', None)
 
 if channel_secret is None:
     print('Specify LINE_CHANNEL_SECRET as environment variable.')
@@ -44,9 +39,13 @@ if channel_secret is None:
 if channel_access_token is None:
     print('Specify LINE_CHANNEL_ACCESS_TOKEN as environment variable.')
     sys.exit(1)
+if dropbox_api_token is None:
+    print('Specify DROPBOX_API_TOKEN as environment variable.')
+    sys.exit(1)
 
 line_bot_api = LineBotApi(channel_access_token)
 handler = WebhookHandler(channel_secret)
+dbx = dropbox.Dropbox(dropbox_api_token)
 
 static_tmp_path = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
 
@@ -82,11 +81,18 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-    line_bot_api.reply_message(
-        event.reply_token,
-        # TextSendMessage(text=event.message.text)
-        TextSendMessage(text=util.get_message(event.message.text))
-    )
+    if event.message.text == "リスト":
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text="これまでに送ってもらった写真をお送りします。")
+        )
+    else:
+        line_bot_api.reply_message(
+            event.reply_token,
+            # TextSendMessage(text=event.message.text)
+            TextSendMessage(text=util.get_message(event.message.text))
+        )
+
 
 @handler.add(MessageEvent, message=(ImageMessage, VideoMessage, AudioMessage))
 def handle_content_message(event):
@@ -109,13 +115,31 @@ def handle_content_message(event):
         for chunk in message_content.iter_content():
             tf.write(chunk)
         tempfile_path = tf.name
+        # send files to dropbox
 
     dist_path = tempfile_path + '.' + ext
     dist_name = os.path.basename(dist_path)
 
+    with open(dist_path, 'rb') as f:
+        try:
+            dbx.files_upload(f.read(), dist_path, mode=WriteMode('overwrite'))
+        except ApiError as err:
+            # This checks for the specific error where a user doesn't have
+            # enough Dropbox space quota to upload this file
+            if (err.error.is_path() and
+                    err.error.get_path().reason.is_insufficient_space()):
+                sys.exit("ERROR: Cannot back up; insufficient space.")
+            elif err.user_message_text:
+                print(err.user_message_text)
+                sys.exit()
+            else:
+                print(err)
+                sys.exit()
+
     line_bot_api.reply_message(
         event.reply_token, [
             # TextSendMessage(text='Save content.'),
+            TextSendMessage(text='写真を保存しました！'),
             TextSendMessage(text=request.host_url + os.path.join('static', 'tmp', dist_name)),
             # ImageSendMessage(
             #     original_content_url=request.host_url + os.path.join('static', 'tmp', dist_name),
