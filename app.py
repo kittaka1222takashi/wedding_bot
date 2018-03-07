@@ -116,8 +116,10 @@ def handle_message(event):
     if event.message.text == "リスト":
         line_bot_api.reply_message(
             event.reply_token,
-            TextSendMessage(text="これまでに送ってもらった写真をお送りします。"),
-            TextSendMessage(text=str(event.source.user_id)),
+            [
+                TextSendMessage(text="これまでに送ってもらった写真をお送りします。"),
+                TextSendMessage(text=str(event.source.user_id)),
+            ]
         )
     else:
         line_bot_api.reply_message(
@@ -168,7 +170,8 @@ def handle_content_message(event):
                 sys.exit()
 
     line_bot_api.reply_message(
-        event.reply_token, [
+        event.reply_token,
+        [
             # TextSendMessage(text='Save content.'),
             TextSendMessage(text='写真を保存しました！'),
             TextSendMessage(text=request.host_url + os.path.join('static', 'tmp', dist_name)),
@@ -176,7 +179,8 @@ def handle_content_message(event):
             #     original_content_url=request.host_url + os.path.join('static', 'tmp', dist_name),
             #     preview_image_url=request.host_url + os.path.join('static', 'tmp', dist_name)
             # )
-        ])
+        ]
+    )
 
 if __name__ == "__main__":
     arg_parser = ArgumentParser(
