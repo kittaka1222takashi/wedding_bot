@@ -117,7 +117,7 @@ def handle_message(event):
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(text="これまでに送ってもらった写真をお送りします。"),
-            TextSendMessage(text=event.source.userId),
+            TextSendMessage(text=event.source.user_id),
         )
     else:
         line_bot_api.reply_message(
