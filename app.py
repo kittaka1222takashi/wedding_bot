@@ -96,7 +96,7 @@ def handle_message(event):
 def handle_content_message(event):
     if not os.path.exists(static_tmp_path):
         make_static_tmp_dir()
-        
+
     if isinstance(event.message, ImageMessage):
         ext = 'jpg'
     elif isinstance(event.message, VideoMessage):
@@ -116,7 +116,7 @@ def handle_content_message(event):
     dist_path = tempfile_path + '.' + ext
     dist_name = os.path.basename(dist_path)
 
-    with open(dist_path, 'rb') as f:
+    with open(tempfile_path, 'rb') as f:
         try:
             # dbx = dropbox.Dropbox(dropbox_api_token)
             dbx.files_upload(f.read(), dist_path, mode=WriteMode('overwrite'))
