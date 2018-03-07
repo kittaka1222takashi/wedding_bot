@@ -81,12 +81,43 @@ def callback():
         abort(400)
     return 'OK'
 
+```
+{
+  "events": [
+    {
+      "replyToken": "nHuyWiB7yP5Zw52FIkcQobQuGDXCTA",
+      "type": "message",
+      "timestamp": 1462629479859,
+      "source": {
+        "type": "user",
+        "userId": "U4af4980629..."
+      },
+      "message": {
+        "id": "325708",
+        "type": "text",
+        "text": "Hello, world"
+      }
+    },
+    {
+      "replyToken": "nHuyWiB7yP5Zw52FIkcQobQuGDXCTA",
+      "type": "follow",
+      "timestamp": 1462629479859,
+      "source": {
+        "type": "user",
+        "userId": "U4af4980629..."
+      }
+    }
+  ]
+}
+```
+
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     if event.message.text == "リスト":
         line_bot_api.reply_message(
             event.reply_token,
-            TextSendMessage(text="これまでに送ってもらった写真をお送りします。")
+            TextSendMessage(text="これまでに送ってもらった写真をお送りします。"),
+            TextSendMessage(text=event.source.userId),
         )
     else:
         line_bot_api.reply_message(
