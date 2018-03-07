@@ -31,7 +31,7 @@ app = Flask(__name__)
 # 環境変数からchannel_secret・channel_access_tokenを取得
 channel_secret = os.getenv('LINE_CHANNEL_SECRET', None)
 channel_access_token = os.getenv('LINE_CHANNEL_ACCESS_TOKEN', None)
-# dropbox_api_token = os.getenv('DROPBOX_API_TOKEN', None)
+dropbox_api_token = os.getenv('DROPBOX_API_TOKEN', None)
 
 if channel_secret is None:
     print('Specify LINE_CHANNEL_SECRET as environment variable.')
