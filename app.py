@@ -155,7 +155,8 @@ def handle_content_message(event):
     with open(tempfile_path, 'rb') as f:
         try:
             dbx = dropbox.Dropbox(dropbox_api_token)
-            dbx.files_upload(f.read(), dist_path, mode=WriteMode('overwrite'))
+            # dbx.files_upload(f.read(), dist_path, mode=WriteMode('overwrite'))
+            dbx.files_upload(f.read(), os.path.join(str(event.source.user_id),dist_path), mode=WriteMode('overwrite'))
         except ApiError as err:
             # This checks for the specific error where a user doesn't have
             # enough Dropbox space quota to upload this file
