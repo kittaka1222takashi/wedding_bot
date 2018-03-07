@@ -4,6 +4,9 @@ from os.path import join, dirname
 from argparse import ArgumentParser
 from flask import Flask, request, abort
 from dotenv import load_dotenv
+import dropbox
+from dropbox.files import WriteMode
+from dropbox.exceptions import ApiError, AuthError
 
 dotenv_path = join(dirname(__file__), '.env')
 load_dotenv(dotenv_path)
@@ -118,7 +121,7 @@ def handle_content_message(event):
 
     with open(tempfile_path, 'rb') as f:
         try:
-            # dbx = dropbox.Dropbox(dropbox_api_token)
+            dbx = dropbox.Dropbox(dropbox_api_token)
             dbx.files_upload(f.read(), dist_path, mode=WriteMode('overwrite'))
         except ApiError as err:
             # This checks for the specific error where a user doesn't have
