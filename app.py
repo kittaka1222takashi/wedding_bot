@@ -151,6 +151,8 @@ def handle_content_message(event):
     # send files to dropbox
     dist_path = tempfile_path + '.' + ext
     dist_name = os.path.basename(dist_path)
+    print(dist_path)
+    print(dist_name.replace('static/tmp',str(event.source.user_id)))
 
     with open(tempfile_path, 'rb') as f:
         try:
