@@ -152,7 +152,7 @@ def handle_content_message(event):
     dist_path = tempfile_path + '.' + ext
     dist_name = os.path.basename(dist_path)
     # create UserId name directory on Dropbox
-    user_dir_name = dist_path.replace('static/tmp',str(event.source.user_id))
+    user_dir_name = dist_path.replace('app/static/tmp',str(event.source.user_id))
 
     with open(tempfile_path, 'rb') as f:
         try:
