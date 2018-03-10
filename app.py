@@ -137,7 +137,10 @@ def handle_message(event):
 
         carousel_template_message = TemplateSendMessage(
             alt_text='Saved Picture',
-            template=CarouselTemplate(columns=img_columns)
+            template=CarouselTemplate(
+                columns=img_columns,
+                imageSize="contain"
+            )
         )
         line_bot_api.reply_message(
             event.reply_token,
