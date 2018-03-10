@@ -181,6 +181,7 @@ def handle_content_message(event):
         try:
             # dbx.files_upload(f.read(), dist_path, mode=WriteMode('overwrite'))
             dbx.files_upload(f.read(), user_dir_name, mode=WriteMode('overwrite'))
+            dbx.sharing_create_shared_link_with_settings(user_dir_name)
         except ApiError as err:
             # This checks for the specific error where a user doesn't have
             # enough Dropbox space quota to upload this file
