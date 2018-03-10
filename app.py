@@ -119,10 +119,10 @@ def handle_message(event):
         img_columns = []
         i = 0
         for entry in lists.entries:
-            img_url = dbx.sharing_create_shared_link_with_settings(entries.path_display)
+            img_url = dbx.sharing_create_shared_link_with_settings(entry.path_display)
             column = CarouselColumn(
                 thumbnail_image_url=img_url,
-                text='保存日時：' + str(entries.client_modified),
+                text='保存日時：' + str(entry.client_modified),
                 actions=[
                     PostbackTemplateAction(
                         label='この画像を削除',
