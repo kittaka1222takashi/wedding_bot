@@ -121,7 +121,7 @@ def handle_message(event):
         for entry in lists.entries:
             img_url = dbx.sharing_create_shared_link_with_settings(entry.path_display)
             column = CarouselColumn(
-                thumbnail_image_url=img_url,
+                thumbnail_image_url=img_url.links[0].url,
                 text='保存日時：' + str(entry.client_modified),
                 actions=[
                     PostbackTemplateAction(
