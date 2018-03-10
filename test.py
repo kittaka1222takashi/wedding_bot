@@ -18,4 +18,6 @@ if dropbox_api_token is None:
 
 dbx = dropbox.Dropbox(dropbox_api_token)
 lists = dbx.files_list_folder("/Ue48e02158a9a7624852bb45f636d0966")
-print(lists.entries[0].name)
+# print(lists.entries[0].name)
+print(lists.entries[0].client_modified)
+print(dbx.sharing_create_shared_link_with_settings(lists.entries[0].path_display))
