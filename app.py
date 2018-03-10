@@ -131,7 +131,7 @@ def handle_message(event):
                     ),
                 ]
             )
-            img_columns[0] = column
+            img_columns.append = column
 
         carousel_template_message = TemplateSendMessage(
             alt_text='Saved Picture',
