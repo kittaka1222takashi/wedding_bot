@@ -123,11 +123,13 @@ def handle_message(event):
     else:
         line_bot_api.reply_message(
             event.reply_token,
-            # TextSendMessage(text=event.message.text)
-            # TextSendMessage(text=util.get_message(event.message.text))
-            TextSendMessage(text="式中に撮った写真を送って下さい(*^^*)")
-            TextSendMessage(text="送っていただいた写真は新郎新婦や参列者の皆様にシェアします！")
-            TextSendMessage(text="写真をいっぱい送ってくれた方には二次会のときにいいことがあるかも？")
+            [
+                # TextSendMessage(text=event.message.text),
+                # TextSendMessage(text=util.get_message(event.message.text)),
+                TextSendMessage(text="式中に撮った写真を送って下さい(*^^*)"),
+                TextSendMessage(text="送っていただいた写真は新郎新婦や参列者の皆様にシェアします！"),
+                TextSendMessage(text="写真をいっぱい送ってくれた方には二次会のときにいいことがあるかも？"),
+            ]
         )
 
 @handler.add(MessageEvent, message=(ImageMessage, VideoMessage, AudioMessage))
