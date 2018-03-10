@@ -82,36 +82,6 @@ def callback():
         abort(400)
     return 'OK'
 
-'''
-{
-  "events": [
-    {
-      "replyToken": "nHuyWiB7yP5Zw52FIkcQobQuGDXCTA",
-      "type": "message",
-      "timestamp": 1462629479859,
-      "source": {
-        "type": "user",
-        "userId": "U4af4980629..."
-      },
-      "message": {
-        "id": "325708",
-        "type": "text",
-        "text": "Hello, world"
-      }
-    },
-    {
-      "replyToken": "nHuyWiB7yP5Zw52FIkcQobQuGDXCTA",
-      "type": "follow",
-      "timestamp": 1462629479859,
-      "source": {
-        "type": "user",
-        "userId": "U4af4980629..."
-      }
-    }
-  ]
-}
-'''
-
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     if event.message.text == "リスト":
@@ -154,7 +124,10 @@ def handle_message(event):
         line_bot_api.reply_message(
             event.reply_token,
             # TextSendMessage(text=event.message.text)
-            TextSendMessage(text=util.get_message(event.message.text))
+            # TextSendMessage(text=util.get_message(event.message.text))
+            TextSendMessage(text="式中に撮った写真を送って下さい(*^^*)")
+            TextSendMessage(text="送っていただいた写真は新郎新婦や参列者の皆様にシェアします！")
+            TextSendMessage(text="写真をいっぱい送ってくれた方には二次会のときにいいことがあるかも？")
         )
 
 @handler.add(MessageEvent, message=(ImageMessage, VideoMessage, AudioMessage))
@@ -206,7 +179,8 @@ def handle_content_message(event):
         [
             # TextSendMessage(text='Save content.'),
             TextSendMessage(text='写真を保存しました！'),
-            TextSendMessage(text=request.host_url + os.path.join('static', 'tmp', dist_name)),
+            TextSendMessage(text='「リスト」と送信すると、これまでに保存された画像を表示することが出来ます！'),
+            # TextSendMessage(text=request.host_url + os.path.join('static', 'tmp', dist_name)),
             # ImageSendMessage(
             #     original_content_url=request.host_url + os.path.join('static', 'tmp', dist_name),
             #     preview_image_url=request.host_url + os.path.join('static', 'tmp', dist_name)
