@@ -121,6 +121,7 @@ def handle_message(event):
         for entry in lists.entries:
             column = CarouselColumn(
                 thumbnail_image_url='https://example.com/item1.jpg',
+                text='保存日時',
                 actions=[
                     PostbackTemplateAction(
                         label='この画像を削除',
