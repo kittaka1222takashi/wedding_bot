@@ -94,7 +94,7 @@ def handle_message(event):
                     TextSendMessage(text="写真を送ってね！"),
                 ]
             )
-        return
+            return
 
         img_columns = []
         i = 0
