@@ -124,7 +124,7 @@ def handle_message(event):
             img_url.replace("www.dropbox.com","dl.dropboxusercontent.com")
             img_url.replace("?dl=0","")
             column = CarouselColumn(
-                thumbnail_image_url=img_url.links[0].url,
+                thumbnail_image_url=img_url,
                 text='保存日時：' + str(entry.client_modified),
                 actions=[
                     PostbackTemplateAction(
