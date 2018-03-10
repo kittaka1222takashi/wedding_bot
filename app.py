@@ -120,7 +120,7 @@ def handle_message(event):
         i = 0
         for entry in lists.entries:
             img_url_tmp = dbx.sharing_list_shared_links(entry.path_display)
-            img_url = img_url.links[0].url
+            img_url = img_url_tmp.links[0].url
             img_url.replace("www.dropbox.com","dl.dropboxusercontent.com")
             img_url.replace("?dl=0","")
             column = CarouselColumn(
