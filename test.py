@@ -17,5 +17,5 @@ if dropbox_api_token is None:
     sys.exit(1)
 
 dbx = dropbox.Dropbox(dropbox_api_token)
-lists = dbx.files_list_folder("/app/Ue48e02158a9a7624852bb45f636d0966")
-print(lists)
+lists = dbx.files_list_folder("/Ue48e02158a9a7624852bb45f636d0966")
+print(lists.entries[0].name)

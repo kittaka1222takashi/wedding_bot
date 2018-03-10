@@ -114,11 +114,34 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     if event.message.text == "リスト":
+        lists = dbx.files_list_folder("/" + str(event.source.user_id))
+        img_columns = []
+        i = 0
+        for entry in lists.entries:
+            column = CarouselColumn(
+                thumbnail_image_url='https://example.com/item1.jpg',
+                title='this is menu1',
+                text='description1',
+                actions=[
+                    PostbackTemplateAction(
+                        label='この画像を削除',
+                        text='postback text1',
+                        data='action=buy&itemid=1'
+                    ),
+                ]
+            )
+            img_columns[0] = column
+
+        carousel_template_message = TemplateSendMessage(
+            alt_text='Saved Picture',
+            template=CarouselTemplate(columns=img_columns)
+        )
         line_bot_api.reply_message(
             event.reply_token,
             [
                 TextSendMessage(text="これまでに送ってもらった写真をお送りします。"),
                 TextSendMessage(text=str(event.source.user_id)),
+                carousel_template_message,
             ]
         )
     else:
