@@ -125,7 +125,6 @@ def handle_message(event):
                 actions=[
                     PostbackTemplateAction(
                         label='この画像を削除',
-                        text='postback text1',
                         data='action=buy&itemid=1'
                     ),
                 ]
