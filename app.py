@@ -86,6 +86,16 @@ def callback():
 def handle_message(event):
     if event.message.text == "リスト":
         lists = dbx.files_list_folder("/" + str(event.source.user_id))
+        if len(lists.entries) == 0:
+            line_bot_api.reply_message(
+                event.reply_token,
+                [
+                    TextSendMessage(text="まだ保存された画像はありません！"),
+                    TextSendMessage(text="写真を送ってね！"),
+                ]
+            )
+        return
+
         img_columns = []
         i = 0
         for entry in lists.entries:
