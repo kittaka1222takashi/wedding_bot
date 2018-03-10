@@ -121,8 +121,6 @@ def handle_message(event):
         for entry in lists.entries:
             column = CarouselColumn(
                 thumbnail_image_url='https://example.com/item1.jpg',
-                title='this is menu1',
-                text='description1',
                 actions=[
                     PostbackTemplateAction(
                         label='この画像を削除',
@@ -141,7 +139,7 @@ def handle_message(event):
             event.reply_token,
             [
                 TextSendMessage(text="これまでに送ってもらった写真をお送りします。"),
-                TextSendMessage(text=str(event.source.user_id)),
+                # TextSendMessage(text=str(event.source.user_id)),
                 carousel_template_message,
             ]
         )
