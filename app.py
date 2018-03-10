@@ -48,6 +48,7 @@ if dropbox_api_token is None:
 
 line_bot_api = LineBotApi(channel_access_token)
 handler = WebhookHandler(channel_secret)
+dbx = dropbox.Dropbox(dropbox_api_token)
 
 static_tmp_path = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
 
@@ -179,7 +180,6 @@ def handle_content_message(event):
 
     with open(tempfile_path, 'rb') as f:
         try:
-            dbx = dropbox.Dropbox(dropbox_api_token)
             # dbx.files_upload(f.read(), dist_path, mode=WriteMode('overwrite'))
             dbx.files_upload(f.read(), user_dir_name, mode=WriteMode('overwrite'))
         except ApiError as err:
