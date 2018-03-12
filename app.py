@@ -85,7 +85,7 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     if event.message.text == "リスト":
-        lists = dbx.files_list_folder("/" + str(event.source.user_id))
+        # lists = dbx.files_list_folder("/" + str(event.source.user_id))
         if len(lists.entries) == 0:
             line_bot_api.reply_message(
                 event.reply_token,
@@ -206,6 +206,11 @@ def handle_content_message(event):
             # )
         ]
     )
+
+@app.route("/archive/<user_id>", methods=['GET'])
+def archive():
+    lists = dbx.files_list_folder("/" + str(event.source.user_id))
+    return user_id
 
 if __name__ == "__main__":
     arg_parser = ArgumentParser(
