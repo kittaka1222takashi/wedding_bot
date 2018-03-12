@@ -96,40 +96,47 @@ def handle_message(event):
             )
             return
 
-        img_columns = []
-        i = 0
-        for entry in lists.entries:
-            img_url_tmp = dbx.sharing_list_shared_links(entry.path_display)
-            img_url_str = img_url_tmp.links[0].url
-            img_url_str2 = img_url_str.replace("www.dropbox.com","dl.dropboxusercontent.com")
-            img_url = img_url_str2.replace("?dl=0","")
-            column = CarouselColumn(
-                thumbnail_image_url=img_url,
-                text='保存日時：' + str(entry.client_modified),
-                actions=[
-                    PostbackTemplateAction(
-                        label='この画像を削除',
-                        data='action=buy&itemid=1'
-                    ),
-                ]
-            )
-            img_columns.append(column)
-
-        carousel_template_message = TemplateSendMessage(
-            alt_text='Saved Picture',
-            template=CarouselTemplate(
-                columns=img_columns,
-                image_size="contain"
-            )
-        )
         line_bot_api.reply_message(
             event.reply_token,
             [
-                TextSendMessage(text="これまでに送ってもらった写真を表示します。"),
-                # TextSendMessage(text=str(event.source.user_id)),
-                carousel_template_message,
+                TextSendMessage(text=request.host_url + os.path.join("archive",str(event.source.user_id)))
             ]
         )
+
+        # img_columns = []
+        # i = 0
+        # for entry in lists.entries:
+        #     img_url_tmp = dbx.sharing_list_shared_links(entry.path_display)
+        #     img_url_str = img_url_tmp.links[0].url
+        #     img_url_str2 = img_url_str.replace("www.dropbox.com","dl.dropboxusercontent.com")
+        #     img_url = img_url_str2.replace("?dl=0","")
+        #     column = CarouselColumn(
+        #         thumbnail_image_url=img_url,
+        #         text='保存日時：' + str(entry.client_modified),
+        #         actions=[
+        #             PostbackTemplateAction(
+        #                 label='この画像を削除',
+        #                 data='action=buy&itemid=1'
+        #             ),
+        #         ]
+        #     )
+        #     img_columns.append(column)
+
+        # carousel_template_message = TemplateSendMessage(
+        #     alt_text='Saved Picture',
+        #     template=CarouselTemplate(
+        #         columns=img_columns,
+        #         image_size="contain"
+        #     )
+        # )
+        # line_bot_api.reply_message(
+        #     event.reply_token,
+        #     [
+        #         TextSendMessage(text="これまでに送ってもらった写真を表示します。"),
+        #         # TextSendMessage(text=str(event.source.user_id)),
+        #         carousel_template_message,
+        #     ]
+        # )
     else:
         line_bot_api.reply_message(
             event.reply_token,
