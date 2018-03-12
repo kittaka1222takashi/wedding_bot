@@ -208,7 +208,7 @@ def handle_content_message(event):
 
 @app.route("/archive/<user_id>", methods=['GET'])
 def archive():
-    lists = dbx.files_list_folder("/" + str(event.source.user_id))
+    lists = dbx.files_list_folder("/" + user_id)
     return user_id
 
 if __name__ == "__main__":
