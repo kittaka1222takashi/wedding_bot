@@ -156,11 +156,14 @@ def handle_content_message(event):
 
     if isinstance(event.message, ImageMessage):
         ext = 'jpg'
-    elif isinstance(event.message, VideoMessage):
-        ext = 'mp4'
-    elif isinstance(event.message, AudioMessage):
-        ext = 'm4a'
+#     elif isinstance(event.message, VideoMessage):
+#         ext = 'mp4'
+#     elif isinstance(event.message, AudioMessage):
+#         ext = 'm4a'
     else:
+        sorry_text='画像以外は送れません、ごめんなさい!'
+        line_bot_api.reply_message(
+            event.reply_token, TextSendMessage(text=sorry_text))
         return
 
     message_content = line_bot_api.get_message_content(event.message.id)
@@ -210,7 +213,14 @@ def handle_content_message(event):
 @app.route("/archive/<user_id>", methods=['GET'])
 def archive(user_id):
     lists = dbx.files_list_folder("/" + user_id)
-    return lists
+    for entry in lists.entries:
+        img_url_tmp = dbx.sharing_list_shared_links(entry.path_display)
+        img_url_str = img_url_tmp.links[0].url
+        img_url_str2 = img_url_str.replace("www.dropbox.com","dl.dropboxusercontent.com")
+        img_url = img_url_str2.replace("?dl=0","")
+        label = '保存日時：' + str(entry.client_modified),
+
+    return render_template('archive.html', title='flask test', name=name)
 
 if __name__ == "__main__":
     arg_parser = ArgumentParser(

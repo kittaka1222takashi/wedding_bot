@@ -1,4 +1,4 @@
 #!/bin/sh
 git add .
-git commit -ma'test'
+git commit -m 'test'
 git push heroku master
