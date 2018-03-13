@@ -220,6 +220,7 @@ def archive(user_id):
         img_url = img_url_str2.replace("?dl=0","")
         label = '保存日時：' + str(entry.client_modified),
 
+    name = "Hoge"
     return render_template('archive.html', title='flask test', name=name)
 
 if __name__ == "__main__":
