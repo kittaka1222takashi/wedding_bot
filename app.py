@@ -1,5 +1,5 @@
 from __future__ import unicode_literals
-import errno,os,sys,util,tempfile
+import errno,os,sys,util,tempfile,datetime
 from os.path import join, dirname
 from argparse import ArgumentParser
 from flask import Flask, request, abort, render_template
@@ -82,16 +82,43 @@ def callback():
         abort(400)
     return 'OK'
 
+@app.route("/archive/<user_id>", methods=['GET'])
+def archive(user_id):
+    lists = dbx.files_list_folder("/" + user_id)
+    images = []
+    for entry in lists.entries:
+        img = {}
+        img_url_tmp = dbx.sharing_list_shared_links(entry.path_display)
+        img_url_str = img_url_tmp.links[0].url
+        img_url_str2 = img_url_str.replace("www.dropbox.com","dl.dropboxusercontent.com")
+        img_url = img_url_str2.replace("?dl=0","")
+        img["url"] = img_url
+        img["saved_date"] = str(entry.client_modified)
+        img["name"] = entry.name
+        images.append(img)
+
+    name = "Hoge"
+    return render_template('archive.html', title='Saved Picture', images=images)
+
+@app.route("/delete/<user_id>/<file_name>", methods=['POST'])
+def delete(user_id, file_name):
+    file_path = "/" + user_id + "/" + file_name
+    # tmp = dbx.files_delete_v2(file_path)
+    if 1 == 1:
+        json_res =  ({"status":"200","message":"Delete succeeded!!"})
+    else :
+        json_res =  json.dumps({"status":"500","message":"Delete failed!!"})
+    return json.dumps()
+
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-    if event.message.text == "リスト":
         lists = dbx.files_list_folder("/" + str(event.source.user_id))
         if len(lists.entries) == 0:
             line_bot_api.reply_message(
                 event.reply_token,
                 [
                     TextSendMessage(text="まだ保存された画像はありません！"),
-                    TextSendMessage(text="写真を送ってね！"),
+                    TextSendMessage(text="写真を送って下さい！"),
                 ]
             )
             return
@@ -99,53 +126,12 @@ def handle_message(event):
         line_bot_api.reply_message(
             event.reply_token,
             [
-                TextSendMessage(text=request.host_url + os.path.join("archive",str(event.source.user_id)))
-            ]
-        )
-
-        # img_columns = []
-        # i = 0
-        # for entry in lists.entries:
-        #     img_url_tmp = dbx.sharing_list_shared_links(entry.path_display)
-        #     img_url_str = img_url_tmp.links[0].url
-        #     img_url_str2 = img_url_str.replace("www.dropbox.com","dl.dropboxusercontent.com")
-        #     img_url = img_url_str2.replace("?dl=0","")
-        #     column = CarouselColumn(
-        #         thumbnail_image_url=img_url,
-        #         text='保存日時：' + str(entry.client_modified),
-        #         actions=[
-        #             PostbackTemplateAction(
-        #                 label='この画像を削除',
-        #                 data='action=buy&itemid=1'
-        #             ),
-        #         ]
-        #     )
-        #     img_columns.append(column)
-
-        # carousel_template_message = TemplateSendMessage(
-        #     alt_text='Saved Picture',
-        #     template=CarouselTemplate(
-        #         columns=img_columns,
-        #         image_size="contain"
-        #     )
-        # )
-        # line_bot_api.reply_message(
-        #     event.reply_token,
-        #     [
-        #         TextSendMessage(text="これまでに送ってもらった写真を表示します。"),
-        #         # TextSendMessage(text=str(event.source.user_id)),
-        #         carousel_template_message,
-        #     ]
-        # )
-    else:
-        line_bot_api.reply_message(
-            event.reply_token,
-            [
-                # TextSendMessage(text=event.message.text),
                 # TextSendMessage(text=util.get_message(event.message.text)),
                 TextSendMessage(text="式中に撮った写真を送って下さい(*^^*)"),
                 TextSendMessage(text="送っていただいた写真は後ほど新郎新婦や参列者の皆様にシェアします！"),
                 TextSendMessage(text="写真をいっぱい送ってくれた方には二次会のときにいいことがあるかも？"),
+                TextSendMessage(text="これまでに保存された写真はこちらのURLから確認出来ます！"),
+                TextSendMessage(text=request.host_url + os.path.join("archive",str(event.source.user_id)))
             ]
         )
 
@@ -156,10 +142,6 @@ def handle_content_message(event):
 
     if isinstance(event.message, ImageMessage):
         ext = 'jpg'
-#     elif isinstance(event.message, VideoMessage):
-#         ext = 'mp4'
-#     elif isinstance(event.message, AudioMessage):
-#         ext = 'm4a'
     else:
         sorry_text='画像以外は送れません、ごめんなさい!'
         line_bot_api.reply_message(
@@ -180,7 +162,6 @@ def handle_content_message(event):
 
     with open(tempfile_path, 'rb') as f:
         try:
-            # dbx.files_upload(f.read(), dist_path, mode=WriteMode('overwrite'))
             dbx.files_upload(f.read(), user_dir_name, mode=WriteMode('overwrite'))
             dbx.sharing_create_shared_link_with_settings(user_dir_name)
         except ApiError as err:
@@ -199,29 +180,10 @@ def handle_content_message(event):
     line_bot_api.reply_message(
         event.reply_token,
         [
-            # TextSendMessage(text='Save content.'),
             TextSendMessage(text='写真を保存しました！'),
-            TextSendMessage(text='「リスト」と送信すると、これまでに保存された画像を表示することが出来ます！'),
-            # TextSendMessage(text=request.host_url + os.path.join('static', 'tmp', dist_name)),
-            # ImageSendMessage(
-            #     original_content_url=request.host_url + os.path.join('static', 'tmp', dist_name),
-            #     preview_image_url=request.host_url + os.path.join('static', 'tmp', dist_name)
-            # )
+            TextSendMessage(text=request.host_url + os.path.join("archive",str(event.source.user_id)))
         ]
     )
-
-@app.route("/archive/<user_id>", methods=['GET'])
-def archive(user_id):
-    lists = dbx.files_list_folder("/" + user_id)
-    for entry in lists.entries:
-        img_url_tmp = dbx.sharing_list_shared_links(entry.path_display)
-        img_url_str = img_url_tmp.links[0].url
-        img_url_str2 = img_url_str.replace("www.dropbox.com","dl.dropboxusercontent.com")
-        img_url = img_url_str2.replace("?dl=0","")
-        label = '保存日時：' + str(entry.client_modified),
-
-    name = "Hoge"
-    return render_template('archive.html', title='flask test', name=name)
 
 if __name__ == "__main__":
     arg_parser = ArgumentParser(
