@@ -1,5 +1,5 @@
 from __future__ import unicode_literals
-import errno,os,sys,util,tempfile,datetime
+import errno,os,sys,util,tempfile,datetime,json
 from os.path import join, dirname
 from argparse import ArgumentParser
 from flask import Flask, request, abort, render_template
@@ -10,6 +10,17 @@ from dropbox.exceptions import ApiError, AuthError
 
 dotenv_path = join(dirname(__file__), '.env')
 load_dotenv(dotenv_path)
+
+class CustomFlask(Flask):
+  jinja_options = Flask.jinja_options.copy()
+  jinja_options.update(dict(
+    block_start_string='(%',
+    block_end_string='%)',
+    variable_start_string='((',
+    variable_end_string='))',
+    comment_start_string='(#',
+    comment_end_string='#)',
+  ))
 
 # sys.path.append('/Users/kikuchitakashi/Docker/wedding_bot')
 from linebot import (
@@ -30,7 +41,9 @@ from linebot.models import (
     UnfollowEvent, FollowEvent, JoinEvent, LeaveEvent, BeaconEvent
 )
 
-app = Flask(__name__)
+# app = Flask(__name__)
+app = CustomFlask(__name__)
+
 # 環境変数からchannel_secret・channel_access_tokenを取得
 channel_secret = os.getenv('LINE_CHANNEL_SECRET', None)
 channel_access_token = os.getenv('LINE_CHANNEL_ACCESS_TOKEN', None)
@@ -84,6 +97,11 @@ def callback():
 
 @app.route("/archive/<user_id>", methods=['GET'])
 def archive(user_id):
+    images = []
+    return render_template('archive.html')
+
+@app.route("/getImages/<user_id>", methods=['GET'])
+def getImages(user_id):
     lists = dbx.files_list_folder("/" + user_id)
     images = []
     for entry in lists.entries:
@@ -96,19 +114,17 @@ def archive(user_id):
         img["saved_date"] = str(entry.client_modified)
         img["name"] = entry.name
         images.append(img)
-
-    name = "Hoge"
-    return render_template('archive.html', title='Saved Picture', images=images)
+    return json.dumps(images)
 
 @app.route("/delete/<user_id>/<file_name>", methods=['POST'])
 def delete(user_id, file_name):
     file_path = "/" + user_id + "/" + file_name
     # tmp = dbx.files_delete_v2(file_path)
     if 1 == 1:
-        json_res =  ({"status":"200","message":"Delete succeeded!!"})
+        json_res =  {"status":"200","message":"Delete succeeded!!"}
     else :
-        json_res =  json.dumps({"status":"500","message":"Delete failed!!"})
-    return json.dumps()
+        json_res =  {"status":"500","message":"Delete failed!!"}
+    return json.dumps(json_res)
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
