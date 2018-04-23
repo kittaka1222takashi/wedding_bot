@@ -112,12 +112,12 @@ def getImages(user_id):
         img_url = img_url_str2.replace("?dl=0","")
         img["url"] = img_url
         img["saved_date"] = str(entry.client_modified)
-        img["name"] = entry.name
+        img["filename"] = entry.name
         images.append(img)
     return json.dumps(images)
 
-@app.route("/delete/<user_id>/<file_name>", methods=['POST'])
-def delete(user_id, file_name):
+@app.route("/deleteImage/<user_id>/<file_name>", methods=['POST'])
+def deleteImage(user_id, file_name):
     file_path = "/" + user_id + "/" + file_name
     # tmp = dbx.files_delete_v2(file_path)
     if 1 == 1:

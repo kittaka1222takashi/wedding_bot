@@ -4,18 +4,20 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.css"/>
   <title>Saved Picture</title>
 </head>
 <body>
   <!--    Bootstrap   -->
-  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <!-- <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script> -->
   <!--   vue.js    -->
   <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-  <!--   Bootstrap confirm    -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap-confirmation2/dist/bootstrap-confirmation.min.js"></script>
+  <!--   Bootstrap-Vue    -->
+  <script src="//unpkg.com/babel-polyfill@latest/dist/polyfill.min.js"></script>
+  <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.js"></script>
   <header>
     <div class="navbar navbar-dark bg-dark box-shadow">
       <div class="container d-flex justify-content-between">
@@ -30,30 +32,62 @@
   <main role="main">
     <div class="album py-5 bg-light">
       <div class="container">
+        <div id="app"></div>
+      </div>
+    </div>
+  </main>
+  <script>
+    const app = new Vue({
+      el: "#app",
+      data: {
+        images: [],
+      },
+      methods: {
+        deleteImage(filename, i) {
+          var path = location.pathname;
+          var tmp = path.split("/");
+          var userId = tmp[2];
+          var url = "/deleteImage/" + userId + "/" + filename;
+          axios.post(url)
+            .then(response => {
+              console.log(response.data.status);
+              if (response.data.status == 200) {
+                this.images.splice(i, 1);
+              } else {
+
+              }
+            })
+        },
+      },
+      created() {
+        var path = location.pathname;
+        var tmp = path.split("/");
+        var userId = tmp[2];
+        var url = "/getImages/" + userId;
+        axios.get(url)
+          .then(response => {
+            this.images = response.data
+          })
+      },
+      template: `
         <div class="row">
-          <div class="col-md-4">
+          <div class="col-md-4" v-for="image, i in images">
             <div class="card mb-4 box-shadow">
             <img class="card-img-top" v-bind:src="image.url" alt="Card image cap">
               <div class="card-body">
-              <p class="card-text"></p>
+              <p class="card-text">{{image.saved_date}}</p>
                 <div class="d-flex justify-content-between align-items-center">
                   <div class="btn-group">
                     <button type="button" class="btn btn-sm btn-outline-secondary">削除</button>
                   </div>
                   <small class="text-muted">9 mins</small>
-                  <button class="btn btn-default" data-toggle="confirmation" data-placement="top">Confirmation on top</button>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </div>
-  </main>
-  <script>
-    $('[data-toggle=confirmation]').confirmation({
-      rootSelector: '[data-toggle=confirmation]',
-      // other options
+      `,
     });
+    
   </script>
 </body>

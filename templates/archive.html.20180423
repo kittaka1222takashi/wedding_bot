@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.css"/>
+  <title>Saved Picture</title>
+  <style>
+    .modal-mask {
+        position: fixed;
+        z-index: 9998;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, .5);
+        display: table;
+        transition: opacity .3s ease;
+    }
+    .modal-wrapper {
+        display: table-cell;
+        vertical-align: middle;
+    }
+    .modal-container {
+        width: 300px;
+        margin: 0px auto;
+        padding: 20px 30px;
+        background-color: #fff;
+        border-radius: 2px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, .33);
+        transition: all .3s ease;
+        font-family: Helvetica, Arial, sans-serif;
+    }
+    .modal-header h3 {
+        margin-top: 0;
+        color: #42b983;
+    }
+    .modal-body {
+        margin: 20px 0;
+    }
+    /*
+     * The following styles are auto-applied to elements with
+     * transition="modal" when their visibility is toggled
+     * by Vue.js.
+     *
+     * You can easily play with the modal transition by editing
+     * these styles.
+     */
+    .modal-enter {
+        opacity: 0;
+    }
+    .modal-leave-active {
+        opacity: 0;
+    }
+    .modal-enter .modal-container,
+    .modal-leave-active .modal-container {
+        -webkit-transform: scale(1.1);
+        transform: scale(1.1);
+    }
+  </style>
+</head>
+<body>
+  <!--    Bootstrap   -->
+  <!-- <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script> -->
+  <!--   vue.js    -->
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <!--   Bootstrap-Vue    -->
+  <script src="https://unpkg.com/babel-polyfill@latest/dist/polyfill.min.js"></script>
+  <script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.js"></script>
+  <header>
+    <div class="navbar navbar-dark bg-dark box-shadow">
+      <div class="container d-flex justify-content-between">
+        <a href="#" class="navbar-brand d-flex align-items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+          <strong>Album</strong>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main role="main">
+    <div class="album py-5 bg-light">
+      <div class="container">
+        <div id="app"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- template for the images component -->
+  <script type="text/x-template" id="images-template">
+    <div class="row">
+      <div class="col-md-4" v-for="image, i in images">
+        <div class="card mb-4 box-shadow">
+        <img class="card-img-top" v-bind:src="image.url" alt="Card image cap">
+          <div class="card-body">
+          <p class="card-text">{{ image.saved_date }}</p>
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="btn-group">
+                <b-button @click="openModal(image)" @keyup.esc="closeModal()" type="button" class="btn btn-sm btn-outline-secondary">削除</b-button>
+              </div>
+              <small class="text-muted">9 mins</small>
+            </div>
+          </div>
+        </div>
+      </div>
+      <modal></modal>
+    </div>
+  </script>
+
+  <!-- template for the modal component -->
+  <script type="text/x-template" id="modal-template">
+    <transition name="modal">
+      <div class="modal-mask" v-if="active" @click="close()">
+        <div class="modal-wrapper">
+          <div class="modal-container">
+            <div class="modal-header">
+              <h3>{{ image.filename }}</h3>
+            </div>
+            <div class="modal-footer">
+              <b-button variant="success" @click="close()">
+                No
+              </b-button>
+              <b-button variant="danger" @click="deleteImage(image, i)">
+                Yes
+              </b-button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </transition>
+  </script>
+
+  <script>
+    var Hub = new Vue();
+
+    Vue.component(
+    'modal', {
+        template: '#modal-template',
+        data: function() {
+          return {
+            active: false,
+            image: {
+              url: '',
+              filename: '',
+              saved_date: ''
+            }
+          }
+        },
+        methods: {
+            open: function (image) {
+              this.active = true;
+              this.image = image;
+            },
+            close: function () {
+              this.active = false;
+            },
+            delete(iamge) {
+              var path = location.pathname;
+              var tmp = path.split("/");
+              var userId = tmp[2];
+              var url = "/deleteImage/" + userId + "/" + filename;
+              axios.post(url)
+                .then(response => {
+                  console.log(response.data.status);
+                  if (response.data.status == 200) {
+                    this.images.splice(i, 1);
+                  } else {
+
+                  }
+                })
+            }
+        },
+        mounted: function() {
+          this.$nextTick(function () {
+            Hub.$on('open-modal', this.open);
+            Hub.$on('close-modal', this.close);
+          }.bind(this));
+        }
+    });
+
+    const app = new Vue({
+      el: "#app",
+      data: {
+        images: [],
+        // images: [{"url": "https://dl.dropboxusercontent.com/s/xvy3q8k579bunyv/jpg-yms0ep5z.jpg", "saved_date": "2018-03-10 14:52:32", "filename": "jpg-yms0ep5z.jpg"}, {"url": "https://dl.dropboxusercontent.com/s/5v7v2lapnw46ob3/jpg-943ahvs8.jpg", "saved_date": "2018-03-10 14:54:20", "filename": "jpg-943ahvs8.jpg"}],
+      },
+      methods: {
+        deleteImage(filename, i) {
+          var path = location.pathname;
+          var tmp = path.split("/");
+          var userId = tmp[2];
+          var url = "/deleteImage/" + userId + "/" + filename;
+          axios.post(url)
+            .then(response => {
+              console.log(response.data.status);
+              if (response.data.status == 200) {
+                this.images.splice(i, 1);
+              } else {
+
+              }
+            })
+        },
+        openModal: function (image) {
+          console.log("open");
+          Hub.$emit('open-modal', image);
+        },
+        closeModal: function () {
+            Hub.$emit('close-modal');
+        }
+      },
+      mounted() {
+        this.$nextTick(function () {
+          Hub.$on('delete-image', this.deleteImage);
+        }.bind(this));
+      },
+      created() {
+        var path = location.pathname;
+        var tmp = path.split("/");
+        var userId = tmp[2];
+        var url = "/getImages/" + userId;
+        axios.get(url)
+          .then(response => {
+            this.images = response.data
+          })
+      },
+      template: '#images-template'
+    });
+  </script>
+</body>
