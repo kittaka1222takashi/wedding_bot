@@ -111,7 +111,12 @@ def getImages(user_id):
         img_url_str2 = img_url_str.replace("www.dropbox.com","dl.dropboxusercontent.com")
         img_url = img_url_str2.replace("?dl=0","")
         img["url"] = img_url
-        img["saved_date"] = str(entry.client_modified)
+        # 保存日時を一度日付オブジェクトに変換
+        # saved_datetime_obj = datetime.datetime.strptime(str(entry.client_modified), "%Y-%m-%d %H:%M:%S")
+        saved_datetime = entry.client_modified
+        # 日本時間に変換
+        saved_datetime_jpn = saved_datetime + datetime.timedelta(hours=9)
+        img["saved_datetime"] = saved_datetime_jpn.strftime("%Y-%m-%d %H:%M:%S")
         img["filename"] = entry.name
         images.append(img)
     return json.dumps(images)

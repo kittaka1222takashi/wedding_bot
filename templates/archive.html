@@ -7,13 +7,23 @@
   <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.css"/>
   <title>Saved Picture</title>
   <style>
+    #loading-img {
+      position: absolute;
+      top: 0px;
+      right: 0px;
+      bottom: 0px;
+      left: 0px;
+      margin: auto;
+    }
   </style>
 </head>
 <body>
-  <!--   vue.js    -->
+  <!--    jQuery   -->
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+  <!--   vue.js   -->
   <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-  <!--   Bootstrap-Vue    -->
+  <!--   Bootstrap-Vue   -->
   <script src="https://unpkg.com/babel-polyfill@latest/dist/polyfill.min.js"></script>
   <script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.js"></script>
   <header>
@@ -31,6 +41,8 @@
     <div class="album py-5 bg-light">
       <div class="container">
         <div id="app"></div>
+        <!-- loading image -->
+        <img src="/static/images/loading.gif" id="loading-img">
       </div>
     </div>
   </main>
@@ -42,16 +54,18 @@
         <div class="card mb-4 box-shadow">
         <img class="card-img-top" v-bind:src="image.url" alt="Card image cap">
           <div class="card-body">
-          <p class="card-text">{{ image.saved_date }}</p>
+          <p class="card-text">{{ image.saved_datetime }}</p>
             <div class="d-flex justify-content-between align-items-center">
               <div class="btn-group">
-                <b-button @click="showModal(i)" @keyup.esc="hideModal" type="button" class="btn btn-sm btn-outline-secondary">削除</b-button>
+                <b-button variant="outline-danger" @click="showModal(i)" @keyup.esc="hideModal" type="button" class="btn btn-sm">削除</b-button>
               </div>
-              <small class="text-muted">9 mins</small>
+              <small class="text-muted">{{ image.saved_datetime | minsAgo}}</small>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- modal -->
       <b-modal ref="confirm" hide-footer hide-header>
         <div class="d-block text-center">
           <p>本当に削除しますか？</p>
@@ -59,7 +73,11 @@
         <b-button variant="success" block @click="hideModal">いいえ</b-button>
         <b-button variant="danger" block @click="deleteImage">はい</b-button>
       </b-modal>
+
     </div>
+  </script>
+
+  <script type="text/x-template" id="message">
   </script>
 
   <script>
@@ -67,6 +85,20 @@
       el: "#app",
       data: {
         images: [],
+      },
+      filters: {
+        minsAgo(saved_datetime) {
+          var saved_datetime_obj = new Date(saved_datetime);
+          var now_time_obj = new Date();
+          var diff = now_time_obj.getTime() - saved_datetime_obj.getTime();
+          var min = parseInt(diff/1000/60);
+          var hour = parseInt(min/60);
+          if (hour > 0) {
+            return hour + "hours ago";
+          } else {
+            return min + "mins ago";
+          }
+        },
       },
       methods: {
         deleteImage() {
@@ -102,7 +134,8 @@
         var url = "/getImages/" + userId;
         axios.get(url)
           .then(response => {
-            this.images = response.data
+            this.images = response.data;
+            $("#loading-img").fadeOut('fast');
           })
       },
       template: '#images-template'
