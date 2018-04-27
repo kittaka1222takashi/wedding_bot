@@ -122,11 +122,13 @@ def getImages(user_id):
 @app.route("/deleteImage/<user_id>/<file_name>", methods=['POST'])
 def deleteImage(user_id, file_name):
     file_path = "/" + user_id + "/" + file_name
-    # tmp = dbx.files_delete_v2(file_path)
-    if 1 == 1:
-        json_res =  {"status":"200","message":"Delete succeeded!!"}
-    else :
+    try:
+        tmp = dbx.files_delete_v2(file_path)
+    except:
         json_res =  {"status":"500","message":"Delete failed!!"}
+    else:
+        json_res =  {"status":"200","message":"Delete succeeded!!"}
+
     return json.dumps(json_res)
 
 @handler.add(MessageEvent, message=TextMessage)

@@ -22,7 +22,6 @@
       opacity: 0;
     }
     #message-parent {
-      background-color:black;
       width:100%;
     }
     #message {
@@ -33,7 +32,7 @@
       margin-left: auto;
       margin-right: auto;
       box-sizing:border-box;
-      width:80%;
+      width:95%;
     }
   </style>
 </head>
@@ -96,7 +95,6 @@
 
       <transition name="message">
         <div v-if="messageActive" id="message-parent">
-          hogehogehoge
           <div id="message">
             <b-alert :show="dismissCountDown" v-bind:variant="variant" @dismiss-count-down="countDownChanged">
               {{ message }}
