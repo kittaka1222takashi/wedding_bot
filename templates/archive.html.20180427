@@ -15,26 +15,6 @@
       left: 0px;
       margin: auto;
     }
-    .message-enter-active, .message-leave-active {
-      transition: opacity 0.5s;
-    }
-    .message-enter, .message-leave-to {
-      opacity: 0;
-    }
-    #message-parent {
-      background-color:black;
-      width:100%;
-    }
-    #message {
-      position: fixed;
-      top: 5px;
-      right: 0;
-      left: 0;
-      margin-left: auto;
-      margin-right: auto;
-      box-sizing:border-box;
-      width:80%;
-    }
   </style>
 </head>
 <body>
@@ -93,32 +73,58 @@
         <b-button variant="success" block @click="hideModal">いいえ</b-button>
         <b-button variant="danger" block @click="deleteImage">はい</b-button>
       </b-modal>
-
-      <transition name="message">
-        <div v-if="messageActive" id="message-parent">
-          hogehogehoge
-          <div id="message">
-            <b-alert :show="dismissCountDown" v-bind:variant="variant" @dismiss-count-down="countDownChanged">
-              {{ message }}
-            </b-alert>
-          </div>
-        </div>
-      </transition>
+      <message></message>
 
     </div>
   </script>
 
+  <!-- template for the message component -->
+  <script type="text/x-template" id="message-template">
+    <transition name="message">
+      <div>
+        <b-alert :show="dismissCountDown" v-bind:variant="variant" @dismiss-count-down="countDownChanged">
+          {{ message }}
+        </b-alert>
+      </div>
+    </transition>
+  </script>
+
   <script>
+    var Hub = new Vue();
+    Vue.component(
+      'message', {
+        template: '#message-template',
+        data: function() {
+          return {
+            dismissSecs: 5,
+            dismissCountDown: 0,
+            message: '',
+            variant:''
+          }
+        },
+        methods: {
+          countDownChanged (dismissCountDown) {
+            this.dismissCountDown = dismissCountDown
+          },
+          show: function (success) {
+            this.message = success ? "削除しました" : "エラーが発生しました";
+            this.variant = success ? "success" : "danger";
+            this.dismissCountDown = this.dismissSecs;
+          }
+        },
+        mounted: function() {
+          this.$nextTick(function () {
+            Hub.$on('show-message', this.show);
+          }.bind(this));
+        }
+      }
+    )
+
     const app = new Vue({
       el: "#app",
       data: {
         images: [],
         imageIndex: '',
-        dismissSecs: 5,
-        dismissCountDown: 0,
-        message: '',
-        variant:'',
-        messageActive:false,
       },
       filters: {
         minsAgo(saved_datetime) {
@@ -135,17 +141,8 @@
         },
       },
       methods: {
-        countDownChanged (dismissCountDown) {
-          this.dismissCountDown = dismissCountDown
-          if (dismissCountDown == 0) {
-            this.messageActive = false;
-          }
-        },
         showMessage: function (success) {
-          this.message = success ? "削除しました" : "エラーが発生しました";
-          this.variant = success ? "success" : "danger";
-          this.dismissCountDown = this.dismissSecs;
-          this.messageActive = true;
+          Hub.$emit('show-message', success);
         },
         deleteImage() {
           var path = location.pathname;
@@ -161,7 +158,7 @@
                 this.images.splice(imageIndex, 1);
                 this.imageIndex = '';
               } else {
-                this.showMassage(false);
+                showMassage(false);
               }
               this.hideModal();
             })

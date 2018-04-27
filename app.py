@@ -97,7 +97,6 @@ def callback():
 
 @app.route("/archive/<user_id>", methods=['GET'])
 def archive(user_id):
-    images = []
     return render_template('archive.html')
 
 @app.route("/getImages/<user_id>", methods=['GET'])
@@ -112,7 +111,6 @@ def getImages(user_id):
         img_url = img_url_str2.replace("?dl=0","")
         img["url"] = img_url
         # 保存日時を一度日付オブジェクトに変換
-        # saved_datetime_obj = datetime.datetime.strptime(str(entry.client_modified), "%Y-%m-%d %H:%M:%S")
         saved_datetime = entry.client_modified
         # 日本時間に変換
         saved_datetime_jpn = saved_datetime + datetime.timedelta(hours=9)
@@ -149,7 +147,7 @@ def handle_message(event):
             [
                 # TextSendMessage(text=util.get_message(event.message.text)),
                 TextSendMessage(text="式中に撮った写真を送って下さい(*^^*)"),
-                TextSendMessage(text="送っていただいた写真は後ほど新郎新婦や参列者の皆様にシェアします！"),
+                TextSendMessage(text="送っていただいた写真は後ほど新郎新婦やこのアカウントを友達登録してくださった皆様にシェアします！"),
                 TextSendMessage(text="写真をいっぱい送ってくれた方には二次会のときにいいことがあるかも？"),
                 TextSendMessage(text="これまでに保存された写真はこちらのURLから確認出来ます！"),
                 TextSendMessage(text=request.host_url + os.path.join("archive",str(event.source.user_id)))
