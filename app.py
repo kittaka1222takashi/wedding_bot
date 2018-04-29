@@ -205,14 +205,6 @@ def handle_content_message(event):
             TextSendMessage(text=request.host_url + os.path.join("archive",str(event.source.user_id)))
         ]
     )
-    profile = line_bot_api.get_profile(event.source.user_id)
-    line_bot_api.push_message(
-        os.getenv('KITTAKA_USER_ID', None),
-        [
-            TextSendMessage(text=profile.display_name + 'が写真を送りました！'),
-            TextSendMessage(text=request.host_url + os.path.join('static', 'tmp', dist_name))
-        ]
-    )
 
 if __name__ == "__main__":
     arg_parser = ArgumentParser(
