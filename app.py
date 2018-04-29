@@ -206,7 +206,7 @@ def handle_content_message(event):
     line_bot_api.reply_message(
         os.getenv('KITTAKA_USER_ID', None),
         [
-            TextSendMessage(text=profile.display_name + 'が写真を送りました！')
+            TextSendMessage(text=profile.display_name + 'が写真を送りました！'),
             TextSendMessage(text=request.host_url + os.path.join('static', 'tmp', dist_name))
         ]
     )
