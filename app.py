@@ -206,7 +206,7 @@ def handle_content_message(event):
         ]
     )
     profile = line_bot_api.get_profile(event.source.user_id)
-    line_bot_api.reply_message(
+    line_bot_api.push_message(
         os.getenv('KITTAKA_USER_ID', None),
         [
             TextSendMessage(text=profile.display_name + 'が写真を送りました！'),
