@@ -138,8 +138,7 @@ def handle_message(event):
             line_bot_api.reply_message(
                 event.reply_token,
                 [
-                    TextSendMessage(text="まだ保存された画像はありません！"),
-                    TextSendMessage(text="写真を送って下さい！"),
+                    TextSendMessage(text="まだ保存された画像はありません！写真を送って下さい！"),
                 ]
             )
             return
@@ -148,10 +147,7 @@ def handle_message(event):
             event.reply_token,
             [
                 # TextSendMessage(text=util.get_message(event.message.text)),
-                TextSendMessage(text="式中に撮った写真を送って下さい(*^^*)"),
-                TextSendMessage(text="送っていただいた写真は後ほど新郎新婦やこのアカウントを友達登録してくださった皆様にシェアします！"),
-                TextSendMessage(text="写真をいっぱい送ってくれた方には二次会のときにいいことがあるかも？"),
-                TextSendMessage(text="これまでに保存された写真はこちらのURLから確認出来ます！"),
+                TextSendMessage(text="式中に撮った写真を送って下さい(*^^*)送っていただいた写真は後ほど新郎新婦やこのアカウントを友達登録してくださった皆様にシェアします！写真をいっぱい送ってくれた方には二次会のときにいいことがあるかも？これまでに保存された写真はこちらのURLから確認出来ます！"),
                 TextSendMessage(text=request.host_url + os.path.join("archive",str(event.source.user_id)))
             ]
         )
@@ -178,6 +174,7 @@ def handle_content_message(event):
     # send files to dropbox
     dist_path = tempfile_path + '.' + ext
     dist_name = os.path.basename(dist_path)
+    os.rename(tempfile_path, dist_path)
     # create UserId name directory on Dropbox
     user_dir_name = dist_path.replace('app/static/tmp',str(event.source.user_id))
 
@@ -203,6 +200,14 @@ def handle_content_message(event):
         [
             TextSendMessage(text='写真を保存しました！'),
             TextSendMessage(text=request.host_url + os.path.join("archive",str(event.source.user_id)))
+        ]
+    )
+    profile = line_bot_api.get_profile(event.source.user_id)
+    line_bot_api.reply_message(
+        os.getenv('KITTAKA_USER_ID', None),
+        [
+            TextSendMessage(text=profile.display_name + 'が写真を送りました！')
+            TextSendMessage(text=request.host_url + os.path.join('static', 'tmp', dist_name)
         ]
     )
 
