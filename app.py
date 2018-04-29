@@ -174,7 +174,7 @@ def handle_content_message(event):
     # send files to dropbox
     print(tempfile_path)
     dist_path = tempfile_path + '.' + ext
-    print(dit_path)
+    print(dist_path)
     dist_name = os.path.basename(dist_path)
     print(dist_name)
     os.rename(tempfile_path, dist_path)
