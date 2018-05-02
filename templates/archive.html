@@ -45,6 +45,9 @@
   <!--   Bootstrap-Vue   -->
   <script src="https://unpkg.com/babel-polyfill@latest/dist/polyfill.min.js"></script>
   <script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.js"></script>
+  <!--   Dropbox   -->
+  <script src="https://unpkg.com/dropbox/dist/Dropbox-sdk.min.js"></script>
+  <script src="https://unpkg.com/dropbox/dist/DropboxTeam-sdk.min.js"></script>
   <header>
     <div class="navbar navbar-dark bg-dark box-shadow">
       <div class="container d-flex justify-content-between">
@@ -73,7 +76,6 @@
         <div class="card mb-4 box-shadow">
         <img class="card-img-top" v-bind:src="image.url" alt="Card image cap">
           <div class="card-body">
-          <p class="card-text">{{ image.saved_datetime }}</p>
             <div class="d-flex justify-content-between align-items-center">
               <div class="btn-group">
                 <b-button variant="outline-danger" @click="showModal(i)" @keyup.esc="hideModal" type="button" class="btn btn-sm">削除</b-button>
@@ -107,6 +109,8 @@
   </script>
 
   <script>
+    var dropbox_api_token = "((dropbox_api_token))";
+    var dbx = new Dropbox.Dropbox({ accessToken: dropbox_api_token });
     const app = new Vue({
       el: "#app",
       data: {
@@ -123,12 +127,15 @@
           var saved_datetime_obj = new Date(saved_datetime);
           var now_time_obj = new Date();
           var diff = now_time_obj.getTime() - saved_datetime_obj.getTime();
-          var min = parseInt(diff/1000/60);
+          var sec = parseInt(diff/1000);
+          var min = parseInt(sec/60);
           var hour = parseInt(min/60);
           if (hour > 0) {
             return hour + "hours ago";
-          } else {
+          } else if (min > 0)  {
             return min + "mins ago";
+          } else {
+            return sec + "seconds ago";
           }
         },
       },
@@ -146,12 +153,13 @@
           this.messageActive = true;
         },
         deleteImage() {
-          var path = location.pathname;
-          var tmp = path.split("/");
+          var url = location.pathname;
+          var tmp = url.split("/");
           var userId = tmp[2];
           var imageIndex = this.imageIndex;
           var image = this.images[imageIndex];
           var url = "/deleteImage/" + userId + "/" + image.filename;
+          this.hideModal();
           axios.post(url)
             .then(response => {
               if (response.data.status == 200) {
@@ -161,27 +169,52 @@
               } else {
                 this.showMassage(false);
               }
-              this.hideModal();
             })
         },
-        showModal (i) {
+        showModal(i){
           this.imageIndex = i;
           this.$refs.confirm.show()
         },
-        hideModal () {
+        hideModal(){
           this.$refs.confirm.hide()
         },
+        getSharingLinks: function (i, images, entries) {
+          var image = {"url":"","saved_datetime":"","filename":"" };
+          var self = this;
+          dbx.sharingListSharedLinks({path: entries[i].path_display})
+            .then(function(response) {
+              image["url"] = response.links[0].url.replace("www.dropbox.com","dl.dropboxusercontent.com").replace("?dl=0","");
+              image["filename"] = entries[i].name;
+              image["saved_datetime"] = entries[i].client_modified;
+              images.push(image);
+              self.images = images;
+              i++;
+              if ( i == entries.length) {
+                return console.log(images);
+              } else {
+                self.getSharingLinks(i, images, entries);
+              }
+            })
+            .catch(function(error) {
+              console.error(error);
+            });
+        },
       },
-      created() {
-        var path = location.pathname;
-        var tmp = path.split("/");
+      created(){
+        var url = location.pathname;
+        var tmp = url.split("/");
         var userId = tmp[2];
-        var url = "/getImages/" + userId;
-        axios.get(url)
-          .then(response => {
-            this.images = response.data;
+        var path = "/" + userId;
+        var images = [];
+        var self = this;
+        dbx.filesListFolder({path: path})
+          .then(function(response) {
+            self.getSharingLinks(0, images, response.entries);
             $("#loading-img").fadeOut('slow');
           })
+          .catch(function(error) {
+            console.error(error);
+          });
       },
       template: '#images-template'
     });

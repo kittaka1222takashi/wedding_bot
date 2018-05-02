@@ -97,7 +97,7 @@ def callback():
 
 @app.route("/archive/<user_id>", methods=['GET'])
 def archive(user_id):
-    return render_template('archive.html')
+    return render_template('archive.html', dropbox_api_token=dropbox_api_token)
 
 @app.route("/getImages/<user_id>", methods=['GET'])
 def getImages(user_id):
