@@ -12,15 +12,15 @@ dotenv_path = join(dirname(__file__), '.env')
 load_dotenv(dotenv_path)
 
 class CustomFlask(Flask):
-  jinja_options = Flask.jinja_options.copy()
-  jinja_options.update(dict(
-    block_start_string='(%',
-    block_end_string='%)',
-    variable_start_string='((',
-    variable_end_string='))',
-    comment_start_string='(#',
-    comment_end_string='#)',
-  ))
+    jinja_options = Flask.jinja_options.copy()
+    jinja_options.update(dict(
+        block_start_string='(%',
+        block_end_string='%)',
+        variable_start_string='((',
+        variable_end_string='))',
+        comment_start_string='(#',
+        comment_end_string='#)',
+    ))
 
 # sys.path.append('/Users/kikuchitakashi/Docker/wedding_bot')
 from linebot import (
@@ -75,10 +75,6 @@ def make_static_tmp_dir():
         else:
             raise
 
-@app.route("/")
-def hello_world():
-    return "hello world"
-
 @app.route("/callback", methods=['POST'])
 def callback():
     # get X-Line-Signature header value
@@ -99,26 +95,6 @@ def callback():
 def archive(user_id):
     return render_template('archive.html', dropbox_api_token=dropbox_api_token)
 
-@app.route("/getImages/<user_id>", methods=['GET'])
-def getImages(user_id):
-    lists = dbx.files_list_folder("/" + user_id)
-    images = []
-    for entry in lists.entries:
-        img = {}
-        img_url_tmp = dbx.sharing_list_shared_links(entry.path_display)
-        img_url_str = img_url_tmp.links[0].url
-        img_url_str2 = img_url_str.replace("www.dropbox.com","dl.dropboxusercontent.com")
-        img_url = img_url_str2.replace("?dl=0","")
-        img["url"] = img_url
-        # 保存日時を一度日付オブジェクトに変換
-        saved_datetime = entry.client_modified
-        # 日本時間に変換
-        saved_datetime_jpn = saved_datetime + datetime.timedelta(hours=9)
-        img["saved_datetime"] = saved_datetime_jpn.strftime("%Y-%m-%d %H:%M:%S")
-        img["filename"] = entry.name
-        images.append(img)
-    return json.dumps(images)
-
 @app.route("/deleteImage/<user_id>/<file_name>", methods=['POST'])
 def deleteImage(user_id, file_name):
     file_path = "/" + user_id + "/" + file_name
@@ -128,39 +104,53 @@ def deleteImage(user_id, file_name):
         json_res =  {"status":"500","message":"Delete failed!!"}
     else:
         json_res =  {"status":"200","message":"Delete succeeded!!"}
-
     return json.dumps(json_res)
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
+    non_picture_message = "まだ保存された画像はありません！写真を送って下さい！"
+    promotion_message = "式中に撮った写真を送って下さい(*^^*)送っていただいた写真は後ほど新郎新婦やこのアカウントを友達登録してくださった皆様にシェアします！写真をいっぱい送ってくれた方には二次会のときにいいことがあるかも？"
+    url_guide_message = "これまでに保存された写真はこちらのURLから確認出来ます！" + request.host_url + os.path.join("archive",str(event.source.user_id))
+
+    try:
         lists = dbx.files_list_folder("/" + str(event.source.user_id))
+    except:
+        line_bot_api.reply_message(
+            event.reply_token,
+            [
+                TextSendMessage(text=non_picture_message),
+                TextSendMessage(text=promotion_message),
+            ]
+        )
+    else:
         if len(lists.entries) == 0:
             line_bot_api.reply_message(
                 event.reply_token,
                 [
-                    TextSendMessage(text="まだ保存された画像はありません！写真を送って下さい！"),
+                    TextSendMessage(text=non_picture_message),
                 ]
             )
-            return
 
         line_bot_api.reply_message(
             event.reply_token,
             [
                 # TextSendMessage(text=util.get_message(event.message.text)),
-                TextSendMessage(text="式中に撮った写真を送って下さい(*^^*)送っていただいた写真は後ほど新郎新婦やこのアカウントを友達登録してくださった皆様にシェアします！写真をいっぱい送ってくれた方には二次会のときにいいことがあるかも？これまでに保存された写真はこちらのURLから確認出来ます！"),
-                TextSendMessage(text=request.host_url + os.path.join("archive",str(event.source.user_id)))
+                TextSendMessage(text=url_guide_message),
             ]
         )
 
 @handler.add(MessageEvent, message=(ImageMessage, VideoMessage, AudioMessage))
 def handle_content_message(event):
+    arcive_url = request.host_url + os.path.join("archive",str(event.source.user_id))
+    complete_message = '写真を保存しました！'
+    sorry_text='画像以外は送れません、ごめんなさい!'
+
     if not os.path.exists(static_tmp_path):
         make_static_tmp_dir()
 
     if isinstance(event.message, ImageMessage):
         ext = 'jpg'
     else:
-        sorry_text='画像以外は送れません、ごめんなさい!'
         line_bot_api.reply_message(
             event.reply_token, TextSendMessage(text=sorry_text))
         return
@@ -172,11 +162,8 @@ def handle_content_message(event):
         tempfile_path = tf.name
 
     # send files to dropbox
-    print(tempfile_path)
     dist_path = tempfile_path + '.' + ext
-    print(dist_path)
     dist_name = os.path.basename(dist_path)
-    print(dist_name)
 
     # create UserId name directory on Dropbox
     user_dir_name = dist_path.replace('app/static/tmp',str(event.source.user_id))
@@ -201,8 +188,8 @@ def handle_content_message(event):
     line_bot_api.reply_message(
         event.reply_token,
         [
-            TextSendMessage(text='写真を保存しました！'),
-            TextSendMessage(text=request.host_url + os.path.join("archive",str(event.source.user_id)))
+            TextSendMessage(text=complete_message),
+            TextSendMessage(text=arcive_url)
         ]
     )
 
@@ -218,3 +205,4 @@ if __name__ == "__main__":
     make_static_tmp_dir()
 
     app.run(debug=options.debug, port=options.port)
+

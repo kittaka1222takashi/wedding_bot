@@ -95,6 +95,7 @@
         <b-button variant="danger" block @click="deleteImage">はい</b-button>
       </b-modal>
 
+      <!-- message -->
       <transition name="message">
         <div v-if="messageActive" id="message-parent">
           <div id="message">
@@ -116,6 +117,7 @@
       data: {
         images: [],
         imageIndex: '',
+        // message表示用データ
         dismissSecs: 5,
         dismissCountDown: 0,
         message: '',
