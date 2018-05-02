@@ -144,6 +144,7 @@ def handle_content_message(event):
     arcive_url = request.host_url + os.path.join("archive",str(event.source.user_id))
     complete_message = '写真を保存しました！'
     sorry_text='画像以外は送れません、ごめんなさい!'
+    complete_reply_message = complete_message + arcive_url
 
     if not os.path.exists(static_tmp_path):
         make_static_tmp_dir()
@@ -188,8 +189,7 @@ def handle_content_message(event):
     line_bot_api.reply_message(
         event.reply_token,
         [
-            TextSendMessage(text=complete_message),
-            TextSendMessage(text=arcive_url)
+            TextSendMessage(text=complete_reply_message),
         ]
     )
 
