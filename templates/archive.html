@@ -78,7 +78,7 @@
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-center">
               <div class="btn-group">
-                <b-button variant="outline-danger" @click="showModal(i)" @keyup.esc="hideModal" type="button" class="btn btn-sm">削除</b-button>
+                <b-button variant="outline-danger" @click="showModal(i)" @keyup.esc="hideModal" type="button" class="btn btn-sm delete-button">削除</b-button>
               </div>
               <small class="text-muted">{{ image.saved_datetime | minsAgo}}</small>
             </div>
@@ -91,8 +91,8 @@
         <div class="d-block text-center">
           <p>本当に削除しますか？</p>
         </div>
-        <b-button variant="success" block @click="hideModal">いいえ</b-button>
-        <b-button variant="danger" block @click="deleteImage">はい</b-button>
+        <b-button class="delete-button" variant="success" block @click="hideModal">いいえ</b-button>
+        <b-button class="delete-button" variant="danger" block @click="deleteImage">はい</b-button>
       </b-modal>
 
       <!-- message -->
@@ -161,15 +161,18 @@
           var imageIndex = this.imageIndex;
           var image = this.images[imageIndex];
           var url = "/deleteImage/" + userId + "/" + image.filename;
-          this.hideModal();
+          $(".delete-button").prop("disabled", true);
           axios.post(url)
             .then(response => {
               if (response.data.status == 200) {
                 this.showMessage(true);
                 this.images.splice(imageIndex, 1);
                 this.imageIndex = '';
+                this.hideModal();
+                $(".delete-button").prop("disabled", false);
               } else {
                 this.showMassage(false);
+                this.hideModal();
               }
             })
         },
