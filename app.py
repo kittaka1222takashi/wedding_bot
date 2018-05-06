@@ -113,7 +113,7 @@ def handle_message(event):
     url_guide_message = "これまでに保存された写真はこちらのURLから確認出来ます！" + request.host_url + os.path.join("archive",str(event.source.user_id))
 
     if event.source.user_id == os.getenv('KITTAKA_USER_ID', None):
-        if event.message.text = "ランキング":
+        if event.message.text == "ランキング":
             ranking_message = util.get_ranking(dbx, line_bot_api)
             line_bot_api.reply_message(
                 event.reply_token,
