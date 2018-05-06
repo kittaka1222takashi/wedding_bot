@@ -39,9 +39,8 @@ def get_ranking(dbx, line_bot_api):
     for user_id in file_num_sorted:
         num = file_num_sorted[user_id]
         profile = line_bot_api.get_profile(user_id)
-        profile.display_name
         ranking.append([rank, user_id, file_num_sorted[user_id], profile.display_name])
-        message = message + str(rank) + "位 " + profile.name + "さん " + str(num) + "枚\n" + user_id + "\n"
+        message = message + str(rank) + "位 " + profile.display_name + "さん " + str(num) + "枚\n" + user_id + "\n"
     message = "です！"
     print(ranking)
     return message
