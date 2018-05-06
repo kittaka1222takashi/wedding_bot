@@ -112,6 +112,16 @@ def handle_message(event):
     promotion_message = "式中に撮った写真を送って下さい(*^^*)送っていただいた写真は後ほど新郎新婦やこのアカウントを友達登録してくださった皆様にシェアします！写真をいっぱい送ってくれた方には二次会のときにいいことがあるかも？"
     url_guide_message = "これまでに保存された写真はこちらのURLから確認出来ます！" + request.host_url + os.path.join("archive",str(event.source.user_id))
 
+    if event.source.user_id == os.getenv('KITTAKA_USER_ID', None):
+        if event.message.text = "ランキング":
+            ranking_message = util.get_ranking(dbx, line_bot_api)
+            line_bot_api.reply_message(
+                event.reply_token,
+                [
+                    TextSendMessage(text=ranking_message),
+                ]
+            )
+
     try:
         lists = dbx.files_list_folder("/" + str(event.source.user_id))
     except:
