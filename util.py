@@ -18,7 +18,7 @@ def get_message(text):
 
     return response
 
-def get_ranking(dbx, line_bot_api):
+def get_ranking_message(dbx, line_bot_api):
     # フォルダのリストを取得
     lists = dbx.files_list_folder("")
     file_num = {}
@@ -44,3 +44,4 @@ def get_ranking(dbx, line_bot_api):
     message = message + "です！"
     print(ranking)
     return message
+

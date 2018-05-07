@@ -91,8 +91,12 @@ def callback():
         abort(400)
     return 'OK'
 
-@app.route("/archive/<user_id>", methods=['GET'])
-def archive(user_id):
+@app.route("/archive/", methods=['GET'])
+def archive():
+    return render_template('archive.html', dropbox_api_token=dropbox_api_token)
+
+@app.route("//", methods=['GET'])
+def archive():
     return render_template('archive.html', dropbox_api_token=dropbox_api_token)
 
 @app.route("/deleteImage/<user_id>/<file_name>", methods=['POST'])
@@ -114,40 +118,68 @@ def handle_message(event):
 
     if event.source.user_id == os.getenv('KITTAKA_USER_ID', None):
         if event.message.text == "ランキング":
-            ranking_message = util.get_ranking(dbx, line_bot_api)
+            ranking_message = util.get_ranking_message(dbx, line_bot_api)
             line_bot_api.reply_message(
                 event.reply_token,
                 [
                     TextSendMessage(text=ranking_message),
                 ]
             )
-
-    try:
-        lists = dbx.files_list_folder("/" + str(event.source.user_id))
-    except:
-        line_bot_api.reply_message(
-            event.reply_token,
-            [
-                TextSendMessage(text=non_picture_message),
-                TextSendMessage(text=promotion_message),
-            ]
-        )
+        else:
+            try:
+                lists = dbx.files_list_folder("/" + str(event.source.user_id))
+            except:
+                line_bot_api.reply_message(
+                    event.reply_token,
+                    [
+                        TextSendMessage(text=non_picture_message),
+                        TextSendMessage(text=promotion_message),
+                    ]
+                )
+            else:
+                if len(lists.entries) == 0:
+                    line_bot_api.reply_message(
+                        event.reply_token,
+                        [
+                            TextSendMessage(text=non_picture_message),
+                            TextSendMessage(text=url_guide_message),
+                        ]
+                    )
+                else:
+                    line_bot_api.reply_message(
+                        event.reply_token,
+                        [
+                            # TextSendMessage(text=util.get_message(event.message.text)),
+                            TextSendMessage(text=url_guide_message),
+                        ]
+                    )
     else:
-        if len(lists.entries) == 0:
+        try:
+            lists = dbx.files_list_folder("/" + str(event.source.user_id))
+        except:
             line_bot_api.reply_message(
                 event.reply_token,
                 [
                     TextSendMessage(text=non_picture_message),
+                    TextSendMessage(text=promotion_message),
                 ]
             )
+        else:
+            if len(lists.entries) == 0:
+                line_bot_api.reply_message(
+                    event.reply_token,
+                    [
+                        TextSendMessage(text=non_picture_message),
+                    ]
+                )
 
-        line_bot_api.reply_message(
-            event.reply_token,
-            [
-                # TextSendMessage(text=util.get_message(event.message.text)),
-                TextSendMessage(text=url_guide_message),
-            ]
-        )
+            line_bot_api.reply_message(
+                event.reply_token,
+                [
+                    # TextSendMessage(text=util.get_message(event.message.text)),
+                    TextSendMessage(text=url_guide_message),
+                ]
+            )
 
 @handler.add(MessageEvent, message=(ImageMessage, VideoMessage, AudioMessage))
 def handle_content_message(event):
