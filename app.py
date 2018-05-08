@@ -91,8 +91,8 @@ def callback():
         abort(400)
     return 'OK'
 
-@app.route("/archive/", methods=['GET'])
-def archive():
+@app.route("/archive/<user_id>", methods=['GET'])
+def archive(user_id):
     return render_template('archive.html', dropbox_api_token=dropbox_api_token)
 
 @app.route("/deleteImage/<user_id>/<file_name>", methods=['POST'])
