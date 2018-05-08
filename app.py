@@ -95,10 +95,6 @@ def callback():
 def archive():
     return render_template('archive.html', dropbox_api_token=dropbox_api_token)
 
-@app.route("//", methods=['GET'])
-def archive():
-    return render_template('archive.html', dropbox_api_token=dropbox_api_token)
-
 @app.route("/deleteImage/<user_id>/<file_name>", methods=['POST'])
 def deleteImage(user_id, file_name):
     file_path = "/" + user_id + "/" + file_name
